@@ -10,23 +10,27 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto, files?: Express.Multer.File[]) {
     const { categoryId, image, ...rest } = createProductDto;
 
-    // Handle uploaded files if any
-    const imageUrls = files?.map((file) => `/uploads/${file.filename}`) || [];
-    const mainImage = imageUrls[0] || image || null;
+    // Buat array image URLs dari uploaded files
+    const imageData = files?.map((file) => ({
+      imageUrl: `/uploads/${file.filename}`,
+    })) || [];
 
     return this.prisma.product.create({
       data: {
         name: rest.name,
         price: rest.price,
         description: rest.description,
-        stock: rest.stock ?? 0, // ✅ Fix: default 0 kalau undefined
-        image: mainImage,
+        stock: rest.stock ?? 0,
         category: {
           connect: { id: categoryId },
+        },
+        images: {
+          create: imageData,
         },
       },
       include: {
         category: true,
+        images: true,
       },
     });
   }
@@ -51,6 +55,7 @@ export class ProductsService {
         take,
         include: {
           category: true,
+          images: true,
         },
         orderBy: {
           createdAt: 'desc',
@@ -73,7 +78,10 @@ export class ProductsService {
   async findOne(id: number) {
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: { category: true },
+      include: {
+        category: true,
+        images: true,
+      },
     });
 
     if (!product) {
@@ -90,12 +98,18 @@ export class ProductsService {
   ) {
     const { categoryId, image, ...rest } = updateProductDto;
 
-    // Check product exists
     await this.findOne(id);
 
-    // Handle uploaded files if any
-    const imageUrls = files?.map((file) => `/uploads/${file.filename}`) || [];
-    const mainImage = imageUrls[0] || image || undefined;
+    // Kalau ada file baru, hapus gambar lama dan ganti dengan yang baru
+    if (files && files.length > 0) {
+      await this.prisma.productImage.deleteMany({
+        where: { productId: id },
+      });
+    }
+
+    const imageData = files?.map((file) => ({
+      imageUrl: `/uploads/${file.filename}`,
+    })) || [];
 
     return this.prisma.product.update({
       where: { id },
@@ -104,21 +118,32 @@ export class ProductsService {
         ...(rest.price !== undefined && { price: rest.price }),
         ...(rest.description !== undefined && { description: rest.description }),
         ...(rest.stock !== undefined && { stock: rest.stock }),
-        ...(mainImage && { image: mainImage }),
         ...(categoryId && {
           category: {
             connect: { id: categoryId },
           },
         }),
+        ...(imageData.length > 0 && {
+          images: {
+            create: imageData,
+          },
+        }),
       },
       include: {
         category: true,
+        images: true,
       },
     });
   }
 
   async remove(id: number) {
     await this.findOne(id);
+
+    // Hapus gambar terkait dulu (Cascade seharusnya handle, tapi ini lebih aman)
+    await this.prisma.productImage.deleteMany({
+      where: { productId: id },
+    });
+
     return this.prisma.product.delete({
       where: { id },
     });
