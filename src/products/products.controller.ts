@@ -1,130 +1,72 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  ParseIntPipe,
   Post,
-  Put,
-  Query,
-  UploadedFiles,
-  UseGuards,
+  Body,
+  Patch,
+  Param,
+  Delete,
   UseInterceptors,
+  UploadedFiles,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
-
 import { FilesInterceptor } from '@nestjs/platform-express';
-
+import { ApiBearerAuth, ApiTags, ApiConsumes, ApiQuery } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
-
-import {
-  productStorage,
-  imageFileFilter,
-} from './multer.config';
-
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/role.guard';
-
-import { Roles } from '../common/decorators/role.decorator';
-import { Role } from '../common/enums/role.enum';
-
+@ApiTags('Products')
+@ApiBearerAuth()
 @Controller('products')
 export class ProductsController {
-  constructor(
-    private readonly productsService: ProductsService,
-  ) {}
+  constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles(Role.ADMIN)
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: productStorage,
-      fileFilter: imageFileFilter,
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiConsumes('multipart/form-data')
   create(
-    @Body() dto: CreateProductDto,
-    @UploadedFiles() files: Express.Multer.File[],
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    return this.productsService.create(
-      dto,
-      files,
-    );
+    return this.productsService.create(createProductDto, files);
   }
 
   @Get()
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
   findAll(
-    @Query('page') page = '1',
-    @Query('limit') limit = '10',
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
     @Query('search') search?: string,
   ) {
     return this.productsService.findAll(
-      Number(page),
-      Number(limit),
+      page ? Number(page) : undefined,
+      limit ? Number(limit) : undefined,
       search,
     );
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe)
-    id: number,
-  ) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
   }
 
-  @Put(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles(Role.ADMIN)
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: productStorage,
-      fileFilter: imageFileFilter,
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
-    }),
-  )
+  @Patch(':id')
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiConsumes('multipart/form-data')
   update(
-    @Param('id', ParseIntPipe)
-    id: number,
-
-    @Body()
-    dto: UpdateProductDto,
-
-    @UploadedFiles()
-    files: Express.Multer.File[],
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    return this.productsService.update(
-      id,
-      dto,
-      files,
-    );
+    return this.productsService.update(id, updateProductDto, files);
   }
 
   @Delete(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles(Role.ADMIN)
-  remove(
-    @Param('id', ParseIntPipe)
-    id: number,
-  ) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.remove(id);
   }
 }
