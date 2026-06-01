@@ -18,20 +18,35 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         transform: true,
-        forbidNonWhitelisted: true,
     }));
     app.use('/uploads', express.static((0, path_1.join)(process.cwd(), 'uploads')));
-    const prisma = app.get(prisma_service_1.PrismaService);
-    const swaggerConfig = new swagger_1.DocumentBuilder()
-        .setTitle('Fashion Ecommerce API')
-        .setDescription('NestJS + Prisma Ecommerce API')
-        .setVersion('1.0')
-        .addBearerAuth()
-        .build();
-    const document = swagger_1.SwaggerModule.createDocument(app, swaggerConfig);
-    swagger_1.SwaggerModule.setup('docs', app, document);
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     app.useGlobalInterceptors(new response_interceptor_1.ResponseInterceptor());
+    const swaggerConfig = new swagger_1.DocumentBuilder()
+        .setTitle('Fashion Ecommerce API')
+        .setDescription(`## API untuk aplikasi e-commerce Fashion\n\n` +
+        `### Cara menggunakan:\n` +
+        `1. Daftar akun via **POST /auth/register**\n` +
+        `2. Login via **POST /auth/login** → copy token dari response\n` +
+        `3. Klik tombol **Authorize 🔒** di kanan atas\n` +
+        `4. Paste token → klik **Authorize** → sekarang semua endpoint bisa diakses`)
+        .setVersion('1.0')
+        .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Masukkan JWT token dari response login',
+    }, 'bearer')
+        .build();
+    const document = swagger_1.SwaggerModule.createDocument(app, swaggerConfig);
+    swagger_1.SwaggerModule.setup('docs', app, document, {
+        swaggerOptions: {
+            persistAuthorization: true,
+            tagsSorter: 'alpha',
+            operationsSorter: 'alpha',
+        },
+    });
+    const prisma = app.get(prisma_service_1.PrismaService);
     await prisma.enableShutdownHooks(app);
     await app.listen(process.env.PORT || 3000);
 }

@@ -8,7 +8,7 @@ import {
   ApiResponse, ApiProperty,
 } from '@nestjs/swagger';
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CartService } from './cart.service';
 
 export class AddToCartDto {

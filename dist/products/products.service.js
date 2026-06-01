@@ -16,14 +16,22 @@ let ProductsService = class ProductsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(dto, files) {
+    async create(createProductDto, files) {
+        const { categoryId, image, ...rest } = createProductDto;
+        const imageData = files?.map((file) => ({
+            imageUrl: `/uploads/${file.filename}`,
+        })) || [];
         return this.prisma.product.create({
             data: {
-                ...dto,
+                name: rest.name,
+                price: rest.price,
+                description: rest.description,
+                stock: rest.stock ?? 0,
+                category: {
+                    connect: { id: categoryId },
+                },
                 images: {
-                    create: files.map((file) => ({
-                        imageUrl: `/uploads/products/${file.filename}`,
-                    })),
+                    create: imageData,
                 },
             },
             include: {
@@ -32,36 +40,40 @@ let ProductsService = class ProductsService {
             },
         });
     }
-    async findAll(page = 1, limit = 10, search) {
-        const skip = (page - 1) * limit;
+    async findAll(page, limit, search) {
         const where = search
             ? {
                 name: {
                     contains: search,
+                    mode: 'insensitive',
                 },
             }
             : {};
-        const data = await this.prisma.product.findMany({
-            skip,
-            take: limit,
-            where,
-            include: {
-                category: true,
-                images: true,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
-        const total = await this.prisma.product.count({
-            where,
-        });
+        const skip = page && limit ? (page - 1) * limit : undefined;
+        const take = limit || undefined;
+        const [data, total] = await Promise.all([
+            this.prisma.product.findMany({
+                where,
+                skip,
+                take,
+                include: {
+                    category: true,
+                    images: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            }),
+            this.prisma.product.count({ where }),
+        ]);
         return {
             data,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
+            meta: {
+                total,
+                page: page || 1,
+                limit: limit || total,
+                totalPages: limit ? Math.ceil(total / limit) : 1,
+            },
         };
     }
     async findOne(id) {
@@ -73,31 +85,50 @@ let ProductsService = class ProductsService {
             },
         });
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException(`Product with ID ${id} not found`);
         }
         return product;
     }
-    async update(id, dto, files) {
+    async update(id, updateProductDto, files) {
+        const { categoryId, image, ...rest } = updateProductDto;
         await this.findOne(id);
-        await this.prisma.product.update({
-            where: { id },
-            data: {
-                ...dto,
-            },
-        });
-        if (files &&
-            files.length) {
-            await this.prisma.productImage.createMany({
-                data: files.map((file) => ({
-                    productId: id,
-                    imageUrl: `/uploads/products/${file.filename}`,
-                })),
+        if (files && files.length > 0) {
+            await this.prisma.productImage.deleteMany({
+                where: { productId: id },
             });
         }
-        return this.findOne(id);
+        const imageData = files?.map((file) => ({
+            imageUrl: `/uploads/${file.filename}`,
+        })) || [];
+        return this.prisma.product.update({
+            where: { id },
+            data: {
+                ...(rest.name && { name: rest.name }),
+                ...(rest.price !== undefined && { price: rest.price }),
+                ...(rest.description !== undefined && { description: rest.description }),
+                ...(rest.stock !== undefined && { stock: rest.stock }),
+                ...(categoryId && {
+                    category: {
+                        connect: { id: categoryId },
+                    },
+                }),
+                ...(imageData.length > 0 && {
+                    images: {
+                        create: imageData,
+                    },
+                }),
+            },
+            include: {
+                category: true,
+                images: true,
+            },
+        });
     }
     async remove(id) {
         await this.findOne(id);
+        await this.prisma.productImage.deleteMany({
+            where: { productId: id },
+        });
         return this.prisma.product.delete({
             where: { id },
         });

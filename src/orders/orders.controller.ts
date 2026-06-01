@@ -7,13 +7,13 @@ import {
   ApiResponse, ApiProperty,
 } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { OrdersService } from './orders.service';
 
 export class CheckoutDto {
   @ApiProperty({
     example: 'Jl. Merdeka No.1, Jakarta Pusat',
-    description: 'Alamat pengiriman (opsional, default dari profil)',
+    description: 'Alamat pengiriman (opsional)',
     required: false,
   })
   @IsOptional()

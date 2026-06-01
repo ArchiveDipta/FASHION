@@ -15,29 +15,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
+const swagger_1 = require("@nestjs/swagger");
 const products_service_1 = require("./products.service");
-const multer_config_1 = require("./multer.config");
 const create_product_dto_1 = require("./dto/create-product.dto");
 const update_product_dto_1 = require("./dto/update-product.dto");
-const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
-const role_guard_1 = require("../common/guards/role.guard");
-const role_decorator_1 = require("../common/decorators/role.decorator");
-const role_enum_1 = require("../common/enums/role.enum");
 let ProductsController = class ProductsController {
     constructor(productsService) {
         this.productsService = productsService;
     }
-    create(dto, files) {
-        return this.productsService.create(dto, files);
+    create(createProductDto, files) {
+        return this.productsService.create(createProductDto, files);
     }
-    findAll(page = '1', limit = '10', search) {
-        return this.productsService.findAll(Number(page), Number(limit), search);
+    findAll(page, limit, search) {
+        return this.productsService.findAll(page ? Number(page) : undefined, limit ? Number(limit) : undefined, search);
     }
     findOne(id) {
         return this.productsService.findOne(id);
     }
-    update(id, dto, files) {
-        return this.productsService.update(id, dto, files);
+    update(id, updateProductDto, files) {
+        return this.productsService.update(id, updateProductDto, files);
     }
     remove(id) {
         return this.productsService.remove(id);
@@ -46,15 +42,8 @@ let ProductsController = class ProductsController {
 exports.ProductsController = ProductsController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, role_guard_1.RolesGuard),
-    (0, role_decorator_1.Roles)(role_enum_1.Role.ADMIN),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('images', 10, {
-        storage: multer_config_1.productStorage,
-        fileFilter: multer_config_1.imageFileFilter,
-        limits: {
-            fileSize: 5 * 1024 * 1024,
-        },
-    })),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files')),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.UploadedFiles)()),
     __metadata("design:type", Function),
@@ -63,11 +52,14 @@ __decorate([
 ], ProductsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String }),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
@@ -78,16 +70,9 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Put)(':id'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, role_guard_1.RolesGuard),
-    (0, role_decorator_1.Roles)(role_enum_1.Role.ADMIN),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('images', 10, {
-        storage: multer_config_1.productStorage,
-        fileFilter: multer_config_1.imageFileFilter,
-        limits: {
-            fileSize: 5 * 1024 * 1024,
-        },
-    })),
+    (0, common_1.Patch)(':id'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files')),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.UploadedFiles)()),
@@ -97,14 +82,14 @@ __decorate([
 ], ProductsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, role_guard_1.RolesGuard),
-    (0, role_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "remove", null);
 exports.ProductsController = ProductsController = __decorate([
+    (0, swagger_1.ApiTags)('Products'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('products'),
     __metadata("design:paramtypes", [products_service_1.ProductsService])
 ], ProductsController);

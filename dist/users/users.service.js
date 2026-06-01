@@ -17,16 +17,34 @@ let UsersService = class UsersService {
         this.prisma = prisma;
     }
     async findByEmail(email) {
-        return this.prisma.user.findUnique({
-            where: {
-                email,
-            },
-        });
+        return this.prisma.user.findUnique({ where: { email } });
     }
     async findById(id) {
         return this.prisma.user.findUnique({
-            where: {
-                id,
+            where: { id },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                address: true,
+                role: true,
+                createdAt: true,
+            },
+        });
+    }
+    async updateProfile(id, data) {
+        return this.prisma.user.update({
+            where: { id },
+            data,
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                address: true,
+                role: true,
+                createdAt: true,
             },
         });
     }
