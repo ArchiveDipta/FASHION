@@ -19,7 +19,7 @@ import { UsersModule } from '../users/users.module';
 
     JwtModule.register({
       secret:
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'supersecretkey',
 
       signOptions: {
         expiresIn: '7d',
