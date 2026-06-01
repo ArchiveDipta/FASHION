@@ -8,22 +8,37 @@ export class UsersService {
     private prisma: PrismaService,
   ) {}
 
-  async findByEmail(
-    email: string,
-  ) {
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async findById(id: number) {
     return this.prisma.user.findUnique({
-      where: {
-        email,
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        address: true,
+        role: true,
+        createdAt: true,
       },
     });
   }
 
-  async findById(
-    id: number,
-  ) {
-    return this.prisma.user.findUnique({
-      where: {
-        id,
+  async updateProfile(id: number, data: { name?: string; phone?: string; address?: string }) {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        address: true,
+        role: true,
+        createdAt: true,
       },
     });
   }
