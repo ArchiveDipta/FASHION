@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
   "postinstall": "prisma generate",
   "scripts": {
     "build": "nest build",
