@@ -6,8 +6,8 @@ export declare class ProductsService {
     constructor(prisma: PrismaService);
     create(createProductDto: CreateProductDto, files?: Express.Multer.File[]): Promise<{
         category: {
-            id: number;
             name: string;
+            id: number;
             slug: string;
         };
         images: {
@@ -16,20 +16,20 @@ export declare class ProductsService {
             productId: number;
         }[];
     } & {
-        id: number;
-        name: string;
         description: string | null;
-        createdAt: Date;
-        categoryId: number;
+        name: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        categoryId: number;
         stock: number;
+        id: number;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     findAll(page?: number, limit?: number, search?: string): Promise<{
         data: ({
             category: {
-                id: number;
                 name: string;
+                id: number;
                 slug: string;
             };
             images: {
@@ -38,13 +38,13 @@ export declare class ProductsService {
                 productId: number;
             }[];
         } & {
-            id: number;
-            name: string;
             description: string | null;
-            createdAt: Date;
-            categoryId: number;
+            name: string;
             price: import("@prisma/client/runtime/library").Decimal;
+            categoryId: number;
             stock: number;
+            id: number;
+            createdAt: Date;
             updatedAt: Date;
         })[];
         meta: {
@@ -56,8 +56,8 @@ export declare class ProductsService {
     }>;
     findOne(id: number): Promise<{
         category: {
-            id: number;
             name: string;
+            id: number;
             slug: string;
         };
         images: {
@@ -66,19 +66,19 @@ export declare class ProductsService {
             productId: number;
         }[];
     } & {
-        id: number;
-        name: string;
         description: string | null;
-        createdAt: Date;
-        categoryId: number;
+        name: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        categoryId: number;
         stock: number;
+        id: number;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     update(id: number, updateProductDto: UpdateProductDto, files?: Express.Multer.File[]): Promise<{
         category: {
-            id: number;
             name: string;
+            id: number;
             slug: string;
         };
         images: {
@@ -87,23 +87,23 @@ export declare class ProductsService {
             productId: number;
         }[];
     } & {
-        id: number;
-        name: string;
         description: string | null;
-        createdAt: Date;
-        categoryId: number;
+        name: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        categoryId: number;
         stock: number;
+        id: number;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     remove(id: number): Promise<{
-        id: number;
-        name: string;
         description: string | null;
-        createdAt: Date;
-        categoryId: number;
+        name: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        categoryId: number;
         stock: number;
+        id: number;
+        createdAt: Date;
         updatedAt: Date;
     }>;
 }

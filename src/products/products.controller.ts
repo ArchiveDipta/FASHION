@@ -24,7 +24,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   create(
     @Body() createProductDto: CreateProductDto,
@@ -55,7 +55,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   update(
     @Param('id', ParseIntPipe) id: number,
