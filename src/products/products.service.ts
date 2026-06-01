@@ -18,9 +18,15 @@ export class ProductsService {
     dto: CreateProductDto,
     files: Express.Multer.File[],
   ) {
+    const { categoryId, image, ...rest } = dto;
+
     return this.prisma.product.create({
       data: {
-        ...dto,
+        ...rest,
+
+        category: {
+          connect: { id: categoryId },
+        },
 
         images: {
           create: files.map(
