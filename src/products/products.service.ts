@@ -1,151 +1,69 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
+  
+  // 1. CONSTRUCTOR (tetap seperti biasa)
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    dto: CreateProductDto,
-    files: Express.Multer.File[],
-  ) {
+  // 2. CREATE() ← Taruh DI SINI, setelah constructor
+  async create(createProductDto: CreateProductDto) {
+    const { categoryId, image, ...productData } = createProductDto;
+
     return this.prisma.product.create({
       data: {
-        ...dto,
-
-        images: {
-          create: files.map(
-            (file) => ({
-              imageUrl:
-                `/uploads/products/${file.filename}`,
-            }),
-          ),
+        ...productData,
+        category: {
+          connect: { id: categoryId },
         },
       },
-
       include: {
         category: true,
-        images: true,
       },
     });
   }
 
-  async findAll(
-    page = 1,
-    limit = 10,
-    search?: string,
-  ) {
-    const skip =
-      (page - 1) * limit;
-
-    const where = search
-      ? {
-          name: {
-            contains: search,
-          },
-        }
-      : {};
-
-    const data =
-      await this.prisma.product.findMany({
-        skip,
-        take: limit,
-
-        where,
-
-        include: {
-          category: true,
-          images: true,
-        },
-
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-
-    const total =
-      await this.prisma.product.count({
-        where,
-      });
-
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(
-        total / limit,
-      ),
-    };
+  // 3. FINDALL() ← Setelah create()
+  async findAll() {
+    return this.prisma.product.findMany({
+      include: { category: true },
+    });
   }
 
+  // 4. FINDONE() ← Setelah findAll()
   async findOne(id: number) {
-    const product =
-      await this.prisma.product.findUnique({
-        where: { id },
-
-        include: {
-          category: true,
-          images: true,
-        },
-      });
-
-    if (!product) {
-      throw new NotFoundException(
-        'Product not found',
-      );
-    }
-
-    return product;
-  }
-
-  async update(
-    id: number,
-    dto: UpdateProductDto,
-    files: Express.Multer.File[],
-  ) {
-    await this.findOne(id);
-
-    await this.prisma.product.update({
+    return this.prisma.product.findUnique({
       where: { id },
-
-      data: {
-        ...dto,
-      },
+      include: { category: true },
     });
-
-    if (
-      files &&
-      files.length
-    ) {
-      await this.prisma.productImage.createMany({
-        data: files.map(
-          (file) => ({
-            productId: id,
-            imageUrl:
-              `/uploads/products/${file.filename}`,
-          }),
-        ),
-      });
-    }
-
-    return this.findOne(id);
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  // 5. UPDATE() ← Setelah findOne()
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    const { categoryId, image, ...productData } = updateProductDto;
 
+    return this.prisma.product.update({
+      where: { id },
+      data: {
+        ...productData,
+        ...(categoryId && {
+          category: {
+            connect: { id: categoryId },
+          },
+        }),
+      },
+      include: { category: true },
+    });
+  }
+
+  // 6. REMOVE() ← Paling bawah
+  async remove(id: number) {
     return this.prisma.product.delete({
       where: { id },
     });
   }
-}
+
+} // ← Tutup class
