@@ -13,7 +13,10 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-
+import { ApiBearerAuth, ApiTags, ApiConsumes, ApiQuery } from '@nestjs/swagger';
+import { ProductsService } from './products.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 const storage = memoryStorage();
 
 @ApiTags('Products')
