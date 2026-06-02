@@ -40,10 +40,13 @@ export class CreateProductDto {
   stock?: number;
 
   @ApiPropertyOptional({
-    type: 'string',
-    format: 'binary',
-    description: 'Upload gambar produk (opsional)',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
+    description: 'Upload gambar produk (opsional, bisa pilih banyak)',
   })
   @IsOptional()
-  image?: any; // Untuk Swagger multipart, sebenarnya dikirim via files[]
+  image?: any[]; // Untuk Swagger multipart, ini akan dikirim via files[]
 }
