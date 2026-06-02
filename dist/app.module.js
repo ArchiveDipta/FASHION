@@ -16,6 +16,7 @@ const categories_module_1 = require("./categories/categories.module");
 const products_module_1 = require("./products/products.module");
 const cart_module_1 = require("./cart/cart.module");
 const orders_module_1 = require("./orders/orders.module");
+const supabase_module_1 = require("./supabase/supabase.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +33,7 @@ exports.AppModule = AppModule = __decorate([
             products_module_1.ProductsModule,
             cart_module_1.CartModule,
             orders_module_1.OrdersModule,
+            supabase_module_1.SupabaseModule,
         ],
     })
 ], AppModule);

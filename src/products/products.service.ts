@@ -2,18 +2,26 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly supabaseService: SupabaseService,
+  ) {}
 
   async create(createProductDto: CreateProductDto, files?: Express.Multer.File[]) {
     const { categoryId, image, ...rest } = createProductDto;
 
-    // Buat array image URLs dari uploaded files
-    const imageData = files?.map((file) => ({
-      imageUrl: `/uploads/${file.filename}`,
-    })) || [];
+    // Upload images to Supabase and get URLs
+    const imageData = [];
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const publicUrl = await this.supabaseService.uploadImage(file);
+        imageData.push({ imageUrl: publicUrl });
+      }
+    }
 
     return this.prisma.product.create({
       data: {
@@ -107,9 +115,13 @@ export class ProductsService {
       });
     }
 
-    const imageData = files?.map((file) => ({
-      imageUrl: `/uploads/${file.filename}`,
-    })) || [];
+    const imageData = [];
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const publicUrl = await this.supabaseService.uploadImage(file);
+        imageData.push({ imageUrl: publicUrl });
+      }
+    }
 
     return this.prisma.product.update({
       where: { id },

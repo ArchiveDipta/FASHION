@@ -12,15 +12,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const supabase_service_1 = require("../supabase/supabase.service");
 let ProductsService = class ProductsService {
-    constructor(prisma) {
+    constructor(prisma, supabaseService) {
         this.prisma = prisma;
+        this.supabaseService = supabaseService;
     }
     async create(createProductDto, files) {
         const { categoryId, image, ...rest } = createProductDto;
-        const imageData = files?.map((file) => ({
-            imageUrl: `/uploads/${file.filename}`,
-        })) || [];
+        const imageData = [];
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const publicUrl = await this.supabaseService.uploadImage(file);
+                imageData.push({ imageUrl: publicUrl });
+            }
+        }
         return this.prisma.product.create({
             data: {
                 name: rest.name,
@@ -97,9 +103,13 @@ let ProductsService = class ProductsService {
                 where: { productId: id },
             });
         }
-        const imageData = files?.map((file) => ({
-            imageUrl: `/uploads/${file.filename}`,
-        })) || [];
+        const imageData = [];
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const publicUrl = await this.supabaseService.uploadImage(file);
+                imageData.push({ imageUrl: publicUrl });
+            }
+        }
         return this.prisma.product.update({
             where: { id },
             data: {
@@ -137,6 +147,7 @@ let ProductsService = class ProductsService {
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        supabase_service_1.SupabaseService])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

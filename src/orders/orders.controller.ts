@@ -50,4 +50,13 @@ export class OrdersController {
   getOrderDetail(@Request() req, @Param('id', ParseIntPipe) id: number) {
     return this.ordersService.getOrderDetail(req.user.userId, id);
   }
+
+  @Post(':id/pay')
+  @ApiOperation({ summary: 'Verifikasi Pembayaran (Simulasi Sederhana)' })
+  @ApiResponse({ status: 200, description: 'Pembayaran berhasil diverifikasi' })
+  @ApiResponse({ status: 400, description: 'Order tidak valid untuk dibayar' })
+  @ApiResponse({ status: 404, description: 'Order tidak ditemukan' })
+  payOrder(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.payOrder(req.user.userId, id);
+  }
 }

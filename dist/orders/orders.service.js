@@ -76,6 +76,19 @@ let OrdersService = class OrdersService {
             throw new common_1.NotFoundException('Order tidak ditemukan');
         return order;
     }
+    async payOrder(userId, orderId) {
+        const order = await this.prisma.order.findFirst({
+            where: { id: orderId, userId },
+        });
+        if (!order)
+            throw new common_1.NotFoundException('Order tidak ditemukan');
+        if (order.status !== 'PENDING')
+            throw new common_1.BadRequestException('Order tidak bisa dibayar atau sudah dibayar');
+        return this.prisma.order.update({
+            where: { id: orderId },
+            data: { status: 'PAID' },
+        });
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([

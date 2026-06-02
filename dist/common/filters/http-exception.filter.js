@@ -13,17 +13,41 @@ let HttpExceptionFilter = class HttpExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const request = ctx.getRequest();
-        const status = exception instanceof common_1.HttpException
+        let status = exception instanceof common_1.HttpException
             ? exception.getStatus()
             : common_1.HttpStatus.INTERNAL_SERVER_ERROR;
-        const message = exception instanceof common_1.HttpException
+        let message = exception instanceof common_1.HttpException
             ? exception.getResponse()
             : 'Internal Server Error';
+        let debugMessage = undefined;
+        if (status === common_1.HttpStatus.INTERNAL_SERVER_ERROR && exception instanceof Error) {
+            debugMessage = exception.message;
+        }
+        if (exception && typeof exception === 'object' && 'code' in exception) {
+            const prismaError = exception;
+            if (prismaError.code === 'P2002') {
+                status = common_1.HttpStatus.CONFLICT;
+                message = 'Data already exists (Unique constraint failed)';
+            }
+            else if (prismaError.code === 'P2025') {
+                status = common_1.HttpStatus.NOT_FOUND;
+                message = 'Record not found';
+            }
+            else if (prismaError.code === 'P2003') {
+                status = common_1.HttpStatus.BAD_REQUEST;
+                message = 'Foreign key constraint failed (Reference does not exist)';
+            }
+            else if (prismaError.code) {
+                status = common_1.HttpStatus.BAD_REQUEST;
+                message = `Database Error: ${prismaError.code}`;
+            }
+        }
         response.status(status).json({
             success: false,
             statusCode: status,
             path: request.url,
             message,
+            debug: debugMessage,
             timestamp: new Date().toISOString(),
         });
     }

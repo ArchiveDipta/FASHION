@@ -12,27 +12,9 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { existsSync, mkdirSync } from 'fs';
-import { ApiBearerAuth, ApiTags, ApiConsumes, ApiQuery } from '@nestjs/swagger';
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { memoryStorage } from 'multer';
 
-const storage = diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = './uploads';
-    if (!existsSync(uploadPath)) {
-      mkdirSync(uploadPath, { recursive: true });
-    }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-  },
-});
+const storage = memoryStorage();
 
 @ApiTags('Products')
 @ApiBearerAuth()
@@ -47,6 +29,7 @@ export class ProductsController {
     @Body() createProductDto: CreateProductDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
+    console.log('UPLOADED FILES:', files);
     return this.productsService.create(createProductDto, files);
   }
 

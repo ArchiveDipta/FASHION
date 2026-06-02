@@ -6,27 +6,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductsModule = void 0;
+exports.SupabaseModule = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
-const products_controller_1 = require("./products.controller");
-const products_service_1 = require("./products.service");
-let ProductsModule = class ProductsModule {
+const supabase_service_1 = require("./supabase.service");
+let SupabaseModule = class SupabaseModule {
 };
-exports.ProductsModule = ProductsModule;
-exports.ProductsModule = ProductsModule = __decorate([
+exports.SupabaseModule = SupabaseModule;
+exports.SupabaseModule = SupabaseModule = __decorate([
+    (0, common_1.Global)(),
     (0, common_1.Module)({
-        imports: [
-            platform_express_1.MulterModule.register({
-                dest: './uploads',
-            }),
-        ],
-        controllers: [
-            products_controller_1.ProductsController,
-        ],
-        providers: [
-            products_service_1.ProductsService,
-        ],
+        providers: [supabase_service_1.SupabaseService],
+        exports: [supabase_service_1.SupabaseService],
     })
-], ProductsModule);
-//# sourceMappingURL=products.module.js.map
+], SupabaseModule);
+//# sourceMappingURL=supabase.module.js.map

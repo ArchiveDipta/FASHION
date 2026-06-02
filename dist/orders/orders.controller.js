@@ -44,6 +44,9 @@ let OrdersController = class OrdersController {
     getOrderDetail(req, id) {
         return this.ordersService.getOrderDetail(req.user.userId, id);
     }
+    payOrder(req, id) {
+        return this.ordersService.payOrder(req.user.userId, id);
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -77,6 +80,18 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "getOrderDetail", null);
+__decorate([
+    (0, common_1.Post)(':id/pay'),
+    (0, swagger_1.ApiOperation)({ summary: 'Verifikasi Pembayaran (Simulasi Sederhana)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Pembayaran berhasil diverifikasi' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Order tidak valid untuk dibayar' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Order tidak ditemukan' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "payOrder", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, swagger_1.ApiTags)('Orders'),
     (0, swagger_1.ApiBearerAuth)(),
