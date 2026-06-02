@@ -22,6 +22,10 @@ import { Roles } from '../common/decorators/role.decorator';
 
 import { Role } from '../common/enums/role.enum';
 
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Categories')
+@ApiBearerAuth('bearer')
 @Controller('categories')
 export class CategoriesController {
   constructor(
