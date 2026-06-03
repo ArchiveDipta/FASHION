@@ -9,6 +9,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -19,8 +20,6 @@ import { RolesGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
 import { Role } from '../common/enums/role.enum';
 
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-
 @ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
@@ -29,7 +28,7 @@ export class CategoriesController {
   ) {}
 
   @Post()
-  @ApiBearerAuth('bearer')
+  @ApiBearerAuth('bearer')  // <-- harus sama dengan addBearerAuth('bearer')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   create(@Body() dto: CreateCategoryDto) {
