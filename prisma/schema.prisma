@@ -27,29 +27,29 @@ model User {
 }
 
 model Category {
-  id       Int      @id @default(autoincrement())
+  id       Int       @id @default(autoincrement())
   name     String
-  slug     String   @unique
+  slug     String    @unique
 
   products Product[]
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
   description String?
-  price       Decimal  @db.Decimal(10, 2)
+  price       Decimal        @db.Decimal(10, 2)
   stock       Int
 
   categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id])
+  category    Category       @relation(fields: [categoryId], references: [id])
 
   images      ProductImage[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@index([categoryId])
 }
@@ -72,7 +72,7 @@ model CartItem {
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade) // <-- SEKARANG SUDAH CASCADE
 
   createdAt DateTime @default(now())
 
@@ -90,18 +90,18 @@ enum OrderStatus {
 }
 
 model Order {
-  id          Int         @id @default(autoincrement())
-  totalPrice  Decimal     @db.Decimal(10, 2)
-  status      OrderStatus @default(PENDING)
-  address     String?
+  id         Int         @id @default(autoincrement())
+  totalPrice Decimal     @db.Decimal(10, 2)
+  status     OrderStatus @default(PENDING)
+  address    String?
 
-  userId      Int
-  user        User        @relation(fields: [userId], references: [id])
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id])
 
-  items       OrderItem[]
+  items      OrderItem[]
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 
   @@index([userId])
 }
@@ -115,7 +115,7 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id]) // <-- Tetap dibiarkan default demi keamanan data transaksi historis
 
   @@index([orderId])
   @@index([productId])
