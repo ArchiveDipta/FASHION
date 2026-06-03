@@ -25,6 +25,7 @@ import { Roles } from '../common/decorators/role.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @ApiTags('Categories')
+@ApiBearerAuth('bearer')
 @Controller('categories')
 export class CategoriesController {
   constructor(
