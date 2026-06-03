@@ -33,7 +33,6 @@ export class CategoriesController {
   ) {}
 
   @Post()
-  @ApiBearerAuth('bearer')
   @ApiOperation({ summary: 'Buat kategori baru (Admin only)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -54,7 +53,6 @@ export class CategoriesController {
   }
 
   @Put(':id')
-  @ApiBearerAuth('bearer')
   @ApiOperation({ summary: 'Update kategori (Admin only)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -66,7 +64,6 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth('bearer')
   @ApiOperation({ summary: 'Hapus kategori (Admin only)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
