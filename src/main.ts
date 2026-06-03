@@ -11,9 +11,12 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // --- PERBAIKAN CONFIG CORS ---
   app.enableCors({
-    origin: true,
-    credentials: true,
+    origin: true, // Mengizinkan origin yang memanggil
+    credentials: true, // Mengizinkan cookies/headers sensitif
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'], // Menentukan header yang BOLEH dikirim oleh Swagger/Browser
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   });
 
   app.useGlobalPipes(
@@ -48,7 +51,9 @@ async function bootstrap() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Masukkan JWT token dari response login',
+        in: 'header', // <-- Mempertegas bahwa token harus disisipkan di Header request
+        name: 'Authorization', // <-- Nama header standar untuk Bearer token
+        description: 'Masukkan JWT token murni dari response login (tanpa kata Bearer)',
       },
       'bearer',
     )
