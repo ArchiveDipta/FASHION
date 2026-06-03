@@ -2,14 +2,10 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npx prisma generate && npm run build",
-    "cacheDirectories": [
-      "node_modules/.cache",
-      "~/.npm"
-    ]
+    "buildCommand": "npm run build"
   },
   "deploy": {
-  "startCommand": "npx prisma migrate resolve --applied 20260601042854_add_cart_order_models && npx prisma migrate deploy && npm run start:prod",
-  "restartPolicyType": "ON_FAILURE"
-}
+    "startCommand": "npx prisma db push --accept-data-loss && npm run start:prod",
+    "restartPolicyType": "ON_FAILURE"
+  }
 }
