@@ -104,6 +104,7 @@ model Order {
   updatedAt   DateTime    @updatedAt
 
   @@index([userId])
+  @@map("orders")
 }
 
 model OrderItem {
