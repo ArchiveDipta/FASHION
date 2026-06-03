@@ -9,7 +9,7 @@
     ]
   },
   "deploy": {
-    "startCommand": "npx prisma migrate deploy && npm run start:prod",
-    "restartPolicyType": "ON_FAILURE"
-  }
+  "startCommand": "npx prisma migrate resolve --applied 20260601042854_add_cart_order_models && npx prisma migrate deploy && npm run start:prod",
+  "restartPolicyType": "ON_FAILURE"
+}
 }
