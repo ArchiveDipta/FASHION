@@ -9,7 +9,11 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { 
+  ApiBearerAuth, 
+  ApiOperation, 
+  ApiTags 
+} from '@nestjs/swagger';
 
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -28,7 +32,8 @@ export class CategoriesController {
   ) {}
 
   @Post()
-  @ApiBearerAuth('bearer')  // <-- harus sama dengan addBearerAuth('bearer')
+  @ApiBearerAuth('bearer')
+  @ApiOperation({ summary: 'Buat kategori baru (Admin only)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   create(@Body() dto: CreateCategoryDto) {
@@ -36,17 +41,20 @@ export class CategoriesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Lihat semua kategori' })
   findAll() {
     return this.categoriesService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Lihat detail kategori' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.categoriesService.findOne(id);
   }
 
   @Put(':id')
   @ApiBearerAuth('bearer')
+  @ApiOperation({ summary: 'Update kategori (Admin only)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   update(
@@ -58,6 +66,7 @@ export class CategoriesController {
 
   @Delete(':id')
   @ApiBearerAuth('bearer')
+  @ApiOperation({ summary: 'Hapus kategori (Admin only)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   remove(@Param('id', ParseIntPipe) id: number) {
